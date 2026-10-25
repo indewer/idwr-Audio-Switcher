@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>AudioSwitcherWidget</AssemblyName>
+    <RootNamespace>AudioSwitcherWidget</RootNamespace>
+    <AssemblyTitle>idwr Audio Switcher</AssemblyTitle>
+    <Product>idwr Audio Switcher</Product>
+    <Version>0.1.0-b3</Version>
+    <FileVersion>0.1.0.3</FileVersion>
+    <Authors>indewer</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio.Wasapi" Version="3.3.0" />
+  </ItemGroup>
+
+</Project>
