@@ -94,11 +94,12 @@ public class MainViewModel : INotifyPropertyChanged
     private bool _alwaysOnTop;
     private bool _startWithWindows;
     private bool _sortByRecent;
-    private bool _autoCheckUpdates;
+    private bool _autoNotifyUpdates;
     private bool _isUpdatingInternally;
 
     // Update notification state
     private bool _isUpdateAvailable;
+    private bool _isUpdateNotificationVisible;
     private string _newVersionTag = string.Empty;
     private string _downloadUrl = string.Empty;
     private bool _isUpdating;
@@ -121,9 +122,9 @@ public class MainViewModel : INotifyPropertyChanged
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsWidgetViewVisible));
 
-            if (value && !_isUpdateAvailable && _autoCheckUpdates)
+            if (value && !_isUpdateAvailable)
             {
-                CheckPeriodicUpdatesAsync();
+                CheckPeriodicUpdatesAsync(isStartup: false);
             }
         }
     }
@@ -168,13 +169,13 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool AutoCheckUpdates
+    public bool AutoNotifyUpdates
     {
-        get => _autoCheckUpdates;
+        get => _autoNotifyUpdates;
         set
         {
-            _autoCheckUpdates = value;
-            _settings.AutoCheckUpdates = value;
+            _autoNotifyUpdates = value;
+            _settings.AutoNotifyUpdates = value;
             _settings.Save();
             OnPropertyChanged();
         }
@@ -184,6 +185,12 @@ public class MainViewModel : INotifyPropertyChanged
     {
         get => _isUpdateAvailable;
         set { _isUpdateAvailable = value; OnPropertyChanged(); }
+    }
+
+    public bool IsUpdateNotificationVisible
+    {
+        get => _isUpdateNotificationVisible;
+        set { _isUpdateNotificationVisible = value; OnPropertyChanged(); }
     }
 
     public string NewVersionTag
@@ -210,7 +217,7 @@ public class MainViewModel : INotifyPropertyChanged
         _alwaysOnTop = _settings.AlwaysOnTop;
         _startWithWindows = _settings.StartWithWindows;
         _sortByRecent = _settings.SortByRecent;
-        _autoCheckUpdates = _settings.AutoCheckUpdates;
+        _autoNotifyUpdates = _settings.AutoNotifyUpdates;
 
         RefreshDevices(firstRun: true);
 
@@ -221,34 +228,44 @@ public class MainViewModel : INotifyPropertyChanged
         _refreshTimer.Tick += (s, e) => RefreshDevices(firstRun: false);
         _refreshTimer.Start();
 
-        if (_autoCheckUpdates)
-        {
-            CheckPeriodicUpdatesAsync();
-        }
+        // Silent check on launch every time; triggers popup if 12-day notification is due
+        CheckPeriodicUpdatesAsync(isStartup: true);
     }
 
-    private async void CheckPeriodicUpdatesAsync()
+    public async void CheckPeriodicUpdatesAsync(bool isStartup = false)
     {
         try
         {
-            bool shouldCheck = !_settings.LastUpdateCheckUtc.HasValue ||
-                               (DateTime.UtcNow - _settings.LastUpdateCheckUtc.Value).TotalDays >= 12;
-
-            if (shouldCheck)
+            var res = await UpdateHelper.CheckForUpdateAsync();
+            if (res.IsUpdateAvailable && !string.IsNullOrEmpty(res.DownloadUrl))
             {
-                var res = await UpdateHelper.CheckForUpdateAsync();
-                _settings.LastUpdateCheckUtc = DateTime.UtcNow;
-                _settings.Save();
+                _downloadUrl = res.DownloadUrl;
+                NewVersionTag = res.LatestVersionTag;
+                IsUpdateAvailable = true;
 
-                if (res.IsUpdateAvailable && !string.IsNullOrEmpty(res.DownloadUrl))
+                if (isStartup && _settings.AutoNotifyUpdates)
                 {
-                    _downloadUrl = res.DownloadUrl;
-                    NewVersionTag = res.LatestVersionTag;
-                    IsUpdateAvailable = true;
+                    bool shouldShowNotification = !_settings.LastUpdateNotifyUtc.HasValue ||
+                        (DateTime.UtcNow - _settings.LastUpdateNotifyUtc.Value).TotalDays >= 12;
+
+                    if (shouldShowNotification)
+                    {
+                        IsUpdateNotificationVisible = true;
+                    }
                 }
             }
         }
         catch { }
+    }
+
+    public void DismissUpdateNotification(bool remindLater = true)
+    {
+        IsUpdateNotificationVisible = false;
+        if (remindLater)
+        {
+            _settings.LastUpdateNotifyUtc = DateTime.UtcNow;
+            _settings.Save();
+        }
     }
 
     public async Task ApplyUpdateAsync()
@@ -324,8 +341,7 @@ public class MainViewModel : INotifyPropertyChanged
             if (!item.IsEnabled)
             {
                 _settings.DisabledDeviceIds.Add(item.Id);
-                if (!string.IsNullOrWhiteSpace(item.HardwareName))
-                    _settings.DisabledDeviceNames.Add(item.HardwareName);
+                // ONLY add specific full name, NEVER generic hardware name!
                 if (!string.IsNullOrWhiteSpace(item.FullName))
                     _settings.DisabledDeviceNames.Add(item.FullName);
                 if (!string.IsNullOrWhiteSpace(item.OriginalFullName))

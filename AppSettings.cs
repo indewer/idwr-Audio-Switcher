@@ -31,8 +31,13 @@ public class AppSettings
     public bool? IsPrimaryScreen { get; set; } = null;
     public bool StartWithWindows { get; set; } = false;
     public bool SortByRecent { get; set; } = true;
+
+    // Updates: badge checks every time on launch; 12-day switch controls the popup notification prompt
     public bool AutoCheckUpdates { get; set; } = true;
+    public bool AutoNotifyUpdates { get; set; } = true;
     public DateTime? LastUpdateCheckUtc { get; set; } = null;
+    public DateTime? LastUpdateNotifyUtc { get; set; } = null;
+
     public Dictionary<string, long> DeviceLastUsedTicks { get; set; } = new();
 
     private static readonly string SettingsFilePath = Path.Combine(
@@ -55,6 +60,13 @@ public class AppSettings
                     settings.CustomDisplayNames ??= new();
                     settings.CustomDisplayNamesByHardware = new Dictionary<string, string>(settings.CustomDisplayNamesByHardware ?? new(), StringComparer.OrdinalIgnoreCase);
                     settings.DeviceLastUsedTicks ??= new();
+
+                    // Strip any generic sound card driver names that mistakenly block individual outputs (like LG TV or Speakers)
+                    var genericNamesToRemove = new[] { "Sound Blaster Z", "NVIDIA High Definition Audio", "Realtek High Definition Audio", "3- High Definition Audio Device" };
+                    foreach (var g in genericNamesToRemove)
+                    {
+                        settings.DisabledDeviceNames.Remove(g);
+                    }
 
                     return settings;
                 }
@@ -118,11 +130,11 @@ public class AppSettings
     /// Determines whether device should be visible.
     /// Newly connected devices are visible (enabled) by default.
     /// Only devices explicitly unchecked by user in settings are disabled.
+    /// Matches strictly against endpoint ID or exact endpoint full name (never generic card name).
     /// </summary>
     public bool IsDeviceEnabled(string deviceId, string hardwareName, string fullName)
     {
         if (DisabledDeviceIds.Contains(deviceId)) return false;
-        if (!string.IsNullOrWhiteSpace(hardwareName) && DisabledDeviceNames.Contains(hardwareName)) return false;
         if (!string.IsNullOrWhiteSpace(fullName) && DisabledDeviceNames.Contains(fullName)) return false;
 
         return true;

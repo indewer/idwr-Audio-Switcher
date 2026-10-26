@@ -165,21 +165,39 @@
                 <!-- Right: Header Controls (Pin, Settings, Minimize, Close) -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <!-- Pin (Always on top) button -->
-                    <Button Style="{StaticResource HeaderIconButton}" Click="PinButton_Click" ToolTip="Закрепить поверх всех окон" Margin="0,0,2,0">
-                        <Path Data="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z" 
-                              Fill="{Binding AlwaysOnTop, Converter={x:Null}}" 
-                              Stretch="Uniform" Width="12" Height="12">
-                            <Path.Style>
-                                <Style TargetType="Path">
-                                    <Setter Property="Fill" Value="#9CA3AF"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding AlwaysOnTop}" Value="True">
-                                            <Setter Property="Fill" Value="#818CF8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Path.Style>
-                        </Path>
+                    <Button Click="PinButton_Click" Margin="0,0,2,0" Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Width" Value="28"/>
+                                <Setter Property="Height" Value="28"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="ToolTip" Value="Закрепить поверх всех окон"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="pinBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                                                <Path x:Name="pinIcon" Data="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3z" 
+                                                      Fill="#9CA3AF" Stretch="Uniform" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="pinBorder" Property="Background" Value="#2D3247"/>
+                                                    <Setter TargetName="pinIcon" Property="Fill" Value="#F3F4F6"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding AlwaysOnTop}" Value="True">
+                                                    <Setter TargetName="pinBorder" Property="Background" Value="#2A2855"/>
+                                                    <Setter TargetName="pinBorder" Property="BorderBrush" Value="#4F46E5"/>
+                                                    <Setter TargetName="pinIcon" Property="Fill" Value="#A5B4FC"/>
+                                                    <Setter Property="ToolTip" Value="Закреплено поверх всех окон (нажмите, чтобы открепить)"/>
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
                     </Button>
 
                     <!-- Settings Button -->
@@ -203,7 +221,79 @@
 
             <!-- BODY: VIEW 1 - SWITCHER (VisibleDevices) -->
             <Grid Grid.Row="1" Visibility="{Binding IsWidgetViewVisible, Converter={StaticResource BoolToVis}}">
-                <ItemsControl ItemsSource="{Binding VisibleDevices}">
+                <StackPanel>
+                    <!-- UPDATE NOTIFICATION POPUP BANNER (Periodic 12-day launch prompt) -->
+                    <Border Visibility="{Binding IsUpdateNotificationVisible, Converter={StaticResource BoolToVis}}"
+                            Background="#142A22" BorderBrush="#059669" BorderThickness="1.2" CornerRadius="12"
+                            Padding="12,9" Margin="0,0,0,9">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Banner Title & Close -->
+                            <Grid Grid.Row="0" Margin="0,0,0,7">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="✨ " FontSize="11"/>
+                                    <TextBlock Text="Доступно обновление " Foreground="#E2E8F0" FontWeight="SemiBold" FontSize="12"/>
+                                    <Border Background="#065F46" CornerRadius="4" Padding="5,1">
+                                        <TextBlock Text="{Binding NewVersionTag}" Foreground="#6EE7B7" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+
+                                <Button Style="{StaticResource HeaderIconButton}" Width="20" Height="20" HorizontalAlignment="Right"
+                                        Click="DismissUpdateNotification_Click" ToolTip="Закрыть">
+                                    <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
+                                          Fill="#9CA3AF" Stretch="Uniform" Width="8" Height="8"/>
+                                </Button>
+                            </Grid>
+
+                            <!-- Actions: [ Обновить ] [ Напомнить позже ] -->
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Grid.Column="0" Content="{Binding UpdateButtonText}" Click="ApplyUpdate_Click"
+                                        Background="#059669" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="11" Height="27"
+                                        Margin="0,0,3,0" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="6" Padding="4,0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="b" Property="Background" Value="#10B981"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <Button Grid.Column="1" Content="Напомнить позже" Click="RemindLater_Click"
+                                        Background="#1D2A26" Foreground="#A7F3D0" FontWeight="Normal" FontSize="11" Height="27"
+                                        Margin="3,0,0,0" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="#047857" BorderThickness="1" CornerRadius="6" Padding="4,0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="b" Property="Background" Value="#253832"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding VisibleDevices}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <!-- Card Button -->
@@ -263,6 +353,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                </StackPanel>
             </Grid>
 
             <!-- BODY: VIEW 2 - SETTINGS (AllDevicesSettings + options) -->
@@ -309,7 +400,7 @@
                     <Border Background="#1C1E2B" CornerRadius="8" Padding="10,8" Margin="0,0,0,10" BorderThickness="1" BorderBrush="#2A2E42">
                         <StackPanel>
                             <CheckBox IsChecked="{Binding SortByRecent}" Content="Недавние устройства всегда сверху" Margin="0,0,0,6" ToolTip="Активные и последние используемые аудиовыходы поднимаются в начало списка"/>
-                            <CheckBox IsChecked="{Binding AutoCheckUpdates}" Content="Проверять обновления (раз в 12 дней)" Margin="0,0,0,6" ToolTip="Периодическая тихая проверка новых релизов на GitHub"/>
+                            <CheckBox IsChecked="{Binding AutoNotifyUpdates}" Content="Уведомлять об обновлениях (раз в 12 дней)" Margin="0,0,0,6" ToolTip="Показывать всплывающее предложение обновиться при запуске не чаще раза в 12 дней. Бейдж в настройках доступен всегда."/>
                             <CheckBox IsChecked="{Binding AlwaysOnTop}" Content="Закрепить поверх всех окон" Margin="0,0,0,6"/>
                             <CheckBox IsChecked="{Binding StartWithWindows}" Content="Запускать при старте Windows"/>
                         </StackPanel>
@@ -327,7 +418,7 @@
                                 
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Border Background="#312E81" CornerRadius="4" Padding="5,1">
-                                        <TextBlock Text="0.2 b1" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
+                                        <TextBlock Text="0.2 b2" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
                                     </Border>
 
                                     <!-- Unobtrusive Update Badge/Pill -->

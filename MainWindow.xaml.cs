@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         _notifyIcon = new Forms.NotifyIcon
         {
             Icon = _appIcon,
-            Text = "(idwr) Audio Switcher 0.2 b1",
+            Text = "(idwr) Audio Switcher 0.2 b2",
             Visible = true
         };
 
@@ -243,6 +243,16 @@ public partial class MainWindow : Window
     private async void ApplyUpdate_Click(object sender, RoutedEventArgs e)
     {
         await _vm.ApplyUpdateAsync();
+    }
+
+    private void DismissUpdateNotification_Click(object sender, RoutedEventArgs e)
+    {
+        _vm.DismissUpdateNotification(remindLater: false);
+    }
+
+    private void RemindLater_Click(object sender, RoutedEventArgs e)
+    {
+        _vm.DismissUpdateNotification(remindLater: true);
     }
 
     private void ShowAndActivate()
