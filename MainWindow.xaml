@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AudioSwitcherWidget"
         mc:Ignorable="d"
-        Title="idwr Audio Switcher" 
+        Title="(idwr) Audio Switcher" 
         Width="350" 
         SizeToContent="Height"
         WindowStyle="None" 
@@ -160,7 +160,7 @@
                               Stroke="#818CF8" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                               HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="14" Height="14"/>
                     </Border>
-                    <TextBlock Text="idwr Audio Switcher" Foreground="#F3F4F6" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                    <TextBlock Text="(idwr) Audio Switcher" Foreground="#F3F4F6" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Right: Header Controls (Pin, Settings, Minimize, Close) -->
@@ -323,9 +323,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="idwr Audio Switcher" Foreground="#C7D2FE" FontWeight="SemiBold" FontSize="11.5"/>
+                                <TextBlock Text="(idwr) Audio Switcher" Foreground="#C7D2FE" FontWeight="SemiBold" FontSize="11.5"/>
                                 <Border Grid.Column="1" Background="#312E81" CornerRadius="4" Padding="5,1">
-                                    <TextBlock Text="0.1 b3" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
+                                    <TextBlock Text="0.1 b4" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
                                 </Border>
                             </Grid>
                             <Button Style="{StaticResource LinkButton}" Click="OpenTelegram_Click" ToolTip="Открыть в Telegram">

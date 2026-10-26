@@ -34,7 +34,7 @@ public partial class MainWindow : Window
         _notifyIcon = new Forms.NotifyIcon
         {
             Icon = _appIcon,
-            Text = "idwr Audio Switcher 0.1 b3",
+            Text = "(idwr) Audio Switcher 0.1 b4",
             Visible = true
         };
 
@@ -120,7 +120,7 @@ public partial class MainWindow : Window
     {
         _vm.SaveSettingsFromUI(closeSettings: false);
         Hide();
-        _notifyIcon.ShowBalloonTip(1500, "idwr Audio Switcher", "Виджет свернут в трей. Кликните дважды, чтобы открыть.", Forms.ToolTipIcon.Info);
+        _notifyIcon.ShowBalloonTip(1500, "(idwr) Audio Switcher", "Виджет свернут в трей. Кликните дважды, чтобы открыть.", Forms.ToolTipIcon.Info);
     }
 
     private void OpenTelegram_Click(object sender, RoutedEventArgs e)
