@@ -1,6 +1,6 @@
 # (idwr) Audio Switcher
 
-[![Version](https://img.shields.io/badge/version-0.2%20b3-indigo.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.2%20b4-indigo.svg)](#)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue.svg)](#)
 [![Author](https://img.shields.io/badge/author-@indewer-blueviolet.svg)](https://t.me/indewer)
 
@@ -35,7 +35,7 @@ A sleek, lightweight floating widget designed for Windows 10 & 11 to solve the h
 Стильный, быстрый и компактный плавающий виджет для мгновенного переключения аудиовыходов в Windows 10/11 в один клик.
 
 **Автор:** [@indewer](https://t.me/indewer) (indewer@ya.ru)  
-**Версия:** 0.2 b3  
+**Версия:** 0.2 b4  
 
 ### Возможности
 1. **Выбор только нужных устройств**: Нажмите на шестеренку ⚙️ в заголовке виджета и отключите ненужные выходы (например, лишние разъемы или мониторы).

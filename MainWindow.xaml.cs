@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         _notifyIcon = new Forms.NotifyIcon
         {
             Icon = _appIcon,
-            Text = "(idwr) Audio Switcher 0.2 b3",
+            Text = "(idwr) Audio Switcher 0.2 b4",
             Visible = true
         };
 

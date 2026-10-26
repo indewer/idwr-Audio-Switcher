@@ -11,8 +11,8 @@
     <RootNamespace>AudioSwitcherWidget</RootNamespace>
     <AssemblyTitle>(idwr) Audio Switcher</AssemblyTitle>
     <Product>(idwr) Audio Switcher</Product>
-    <Version>0.2.0-b3</Version>
-    <FileVersion>0.2.0.3</FileVersion>
+    <Version>0.2.0-b4</Version>
+    <FileVersion>0.2.0.4</FileVersion>
     <Authors>indewer</Authors>
   </PropertyGroup>
 

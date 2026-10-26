@@ -20,8 +20,8 @@ public class UpdateCheckResult
 
 public static class UpdateHelper
 {
-    public const string CurrentVersion = "0.2 b3";
-    public const string CurrentVersionTag = "v0.2-b3";
+    public const string CurrentVersion = "0.2 b4";
+    public const string CurrentVersionTag = "v0.2-b4";
     private const string GitHubApiUrl = "https://api.github.com/repos/indewer/idwr-Audio-Switcher/releases/latest";
 
     private static readonly HttpClient _http = new()
