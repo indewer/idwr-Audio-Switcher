@@ -20,6 +20,7 @@ public class AudioDeviceInfo
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string Subtitle { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
     public bool IsDefault { get; set; }
     public float Volume { get; set; }
     public bool IsMuted { get; set; }
@@ -91,6 +92,7 @@ public static class CoreAudioHelper
                     Id = ep.ID,
                     Name = title,
                     Subtitle = subtitle,
+                    FullName = fullName,
                     IsDefault = defaultDevice != null && string.Equals(ep.ID, defaultDevice.ID, StringComparison.OrdinalIgnoreCase),
                     Volume = vol,
                     IsMuted = muted,

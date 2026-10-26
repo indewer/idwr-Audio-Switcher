@@ -20,8 +20,8 @@ public class UpdateCheckResult
 
 public static class UpdateHelper
 {
-    public const string CurrentVersion = "0.1 b8";
-    public const string CurrentVersionTag = "v0.1-b8";
+    public const string CurrentVersion = "0.2 b1";
+    public const string CurrentVersionTag = "v0.2-b1";
     private const string GitHubApiUrl = "https://api.github.com/repos/indewer/idwr-Audio-Switcher/releases/latest";
 
     private static readonly HttpClient _http = new()
@@ -146,15 +146,15 @@ public static class UpdateHelper
         if (string.IsNullOrWhiteSpace(latestTag)) return false;
         if (string.Equals(latestTag.Trim(), currentTag.Trim(), StringComparison.OrdinalIgnoreCase)) return false;
 
-        // Compare beta versions like v0.1-b8 vs v0.1-b7
         try
         {
-            int latestNum = ExtractBuildNumber(latestTag);
-            int currentNum = ExtractBuildNumber(currentTag);
-            if (latestNum > 0 && currentNum > 0)
-            {
-                return latestNum > currentNum;
-            }
+            var (latMaj, latMin, latPatch, latBuild) = ParseVersion(latestTag);
+            var (curMaj, curMin, curPatch, curBuild) = ParseVersion(currentTag);
+
+            if (latMaj != curMaj) return latMaj > curMaj;
+            if (latMin != curMin) return latMin > curMin;
+            if (latPatch != curPatch) return latPatch > curPatch;
+            if (latBuild != curBuild) return latBuild > curBuild;
         }
         catch { }
 
@@ -162,19 +162,24 @@ public static class UpdateHelper
         return !string.Equals(latestTag, currentTag, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static int ExtractBuildNumber(string tag)
+    private static (int major, int minor, int patch, int build) ParseVersion(string tag)
     {
-        // Extracts '8' from 'v0.1-b8' or '0.1 b8'
-        var lower = tag.ToLowerInvariant();
-        int idx = lower.IndexOf('b');
-        if (idx >= 0 && idx + 1 < lower.Length)
+        // Parses formats like "v0.2-b1", "0.2 b1", "v0.2.0", "v0.1-b8"
+        string clean = tag.Trim().TrimStart('v', 'V');
+        int build = 0;
+        int bIdx = clean.IndexOf('b', StringComparison.OrdinalIgnoreCase);
+        if (bIdx >= 0)
         {
-            string numPart = new string(lower.Substring(idx + 1).TakeWhile(char.IsDigit).ToArray());
-            if (int.TryParse(numPart, out int num))
-            {
-                return num;
-            }
+            string bPart = new string(clean.Substring(bIdx + 1).TakeWhile(char.IsDigit).ToArray());
+            int.TryParse(bPart, out build);
+            clean = clean.Substring(0, bIdx).TrimEnd('-', ' ', '_');
         }
-        return 0;
+
+        var parts = clean.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        int major = parts.Length > 0 && int.TryParse(parts[0], out var ma) ? ma : 0;
+        int minor = parts.Length > 1 && int.TryParse(parts[1], out var mi) ? mi : 0;
+        int patch = parts.Length > 2 && int.TryParse(parts[2], out var pa) ? pa : 0;
+
+        return (major, minor, patch, build);
     }
 }

@@ -65,6 +65,8 @@ public class DeviceSettingItemViewModel : INotifyPropertyChanged
     private string _customName = string.Empty;
 
     public string Id { get; set; } = string.Empty;
+    public string HardwareName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;
     public string OriginalFullName { get; set; } = string.Empty;
 
     public bool IsEnabled
@@ -118,6 +120,11 @@ public class MainViewModel : INotifyPropertyChanged
             _isSettingsOpen = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(IsWidgetViewVisible));
+
+            if (value && !_isUpdateAvailable && _autoCheckUpdates)
+            {
+                CheckPeriodicUpdatesAsync();
+            }
         }
     }
 
@@ -259,35 +266,24 @@ public class MainViewModel : INotifyPropertyChanged
     {
         var rawDevices = CoreAudioHelper.GetPlaybackDevices();
 
-        // If first ever run and nothing is configured, enable all by default
-        if (firstRun && !_settings.IsConfigured && _settings.EnabledDeviceIds.Count == 0)
-        {
-            _settings.EnabledDeviceIds = rawDevices.Select(d => d.Id).ToList();
-            _settings.IsConfigured = true;
-            _settings.Save();
-        }
+        // Check if devices were connected or disconnected
+        bool devicesChanged = AllDevicesSettings.Count != rawDevices.Count ||
+            !AllDevicesSettings.Select(s => s.Id).ToHashSet().SetEquals(rawDevices.Select(d => d.Id));
 
-        // Initialize ticks for current default if not set
-        var defaultDev = rawDevices.FirstOrDefault(d => d.IsDefault);
-        if (defaultDev != null && !_settings.DeviceLastUsedTicks.ContainsKey(defaultDev.Id))
-        {
-            _settings.DeviceLastUsedTicks[defaultDev.Id] = DateTime.UtcNow.Ticks;
-            _settings.Save();
-        }
-
-        // Update settings list if count changed or first run
-        if (AllDevicesSettings.Count != rawDevices.Count)
+        if (devicesChanged || firstRun)
         {
             _isUpdatingInternally = true;
             AllDevicesSettings.Clear();
             foreach (var d in rawDevices)
             {
-                bool isEnabled = _settings.EnabledDeviceIds.Contains(d.Id);
-                string customName = _settings.CustomDisplayNames.TryGetValue(d.Id, out var cn) ? cn : string.Empty;
+                bool isEnabled = _settings.IsDeviceEnabled(d.Id, d.Name, d.FullName);
+                string customName = _settings.GetCustomName(d.Id, d.Name, d.FullName);
 
                 var item = new DeviceSettingItemViewModel
                 {
                     Id = d.Id,
+                    HardwareName = d.Name,
+                    FullName = d.FullName,
                     OriginalFullName = string.IsNullOrEmpty(d.Subtitle) ? d.Name : $"{d.Name} ({d.Subtitle})",
                     IsEnabled = isEnabled,
                     CustomName = customName
@@ -305,21 +301,60 @@ public class MainViewModel : INotifyPropertyChanged
             _isUpdatingInternally = false;
         }
 
+        // Initialize ticks for current default if not set
+        var defaultDev = rawDevices.FirstOrDefault(d => d.IsDefault);
+        if (defaultDev != null && !_settings.DeviceLastUsedTicks.ContainsKey(defaultDev.Id))
+        {
+            _settings.DeviceLastUsedTicks[defaultDev.Id] = DateTime.UtcNow.Ticks;
+            _settings.Save();
+        }
+
         UpdateVisibleDevices(rawDevices);
     }
 
     private void AutoSaveSettings()
     {
         _settings.IsConfigured = true;
-        _settings.EnabledDeviceIds = AllDevicesSettings.Where(s => s.IsEnabled).Select(s => s.Id).ToList();
-        _settings.CustomDisplayNames.Clear();
+
+        _settings.DisabledDeviceIds.Clear();
+        _settings.DisabledDeviceNames.Clear();
+
         foreach (var item in AllDevicesSettings)
         {
+            if (!item.IsEnabled)
+            {
+                _settings.DisabledDeviceIds.Add(item.Id);
+                if (!string.IsNullOrWhiteSpace(item.HardwareName))
+                    _settings.DisabledDeviceNames.Add(item.HardwareName);
+                if (!string.IsNullOrWhiteSpace(item.FullName))
+                    _settings.DisabledDeviceNames.Add(item.FullName);
+                if (!string.IsNullOrWhiteSpace(item.OriginalFullName))
+                    _settings.DisabledDeviceNames.Add(item.OriginalFullName);
+            }
+
             if (!string.IsNullOrWhiteSpace(item.CustomName))
             {
-                _settings.CustomDisplayNames[item.Id] = item.CustomName.Trim();
+                string trimmed = item.CustomName.Trim();
+                _settings.CustomDisplayNames[item.Id] = trimmed;
+                if (!string.IsNullOrWhiteSpace(item.HardwareName))
+                    _settings.CustomDisplayNamesByHardware[item.HardwareName] = trimmed;
+                if (!string.IsNullOrWhiteSpace(item.FullName))
+                    _settings.CustomDisplayNamesByHardware[item.FullName] = trimmed;
+                if (!string.IsNullOrWhiteSpace(item.OriginalFullName))
+                    _settings.CustomDisplayNamesByHardware[item.OriginalFullName] = trimmed;
+            }
+            else
+            {
+                _settings.CustomDisplayNames.Remove(item.Id);
+                if (!string.IsNullOrWhiteSpace(item.HardwareName))
+                    _settings.CustomDisplayNamesByHardware.Remove(item.HardwareName);
+                if (!string.IsNullOrWhiteSpace(item.FullName))
+                    _settings.CustomDisplayNamesByHardware.Remove(item.FullName);
+                if (!string.IsNullOrWhiteSpace(item.OriginalFullName))
+                    _settings.CustomDisplayNamesByHardware.Remove(item.OriginalFullName);
             }
         }
+
         _settings.Save();
 
         var rawDevices = CoreAudioHelper.GetPlaybackDevices();
@@ -329,7 +364,7 @@ public class MainViewModel : INotifyPropertyChanged
     private void UpdateVisibleDevices(System.Collections.Generic.List<AudioDeviceInfo>? rawDevices = null)
     {
         rawDevices ??= CoreAudioHelper.GetPlaybackDevices();
-        var enabledRaw = rawDevices.Where(d => _settings.EnabledDeviceIds.Contains(d.Id)).ToList();
+        var enabledRaw = rawDevices.Where(d => _settings.IsDeviceEnabled(d.Id, d.Name, d.FullName)).ToList();
 
         // Sort by recent / usage if enabled
         if (_settings.SortByRecent)
@@ -344,7 +379,7 @@ public class MainViewModel : INotifyPropertyChanged
         var existingMap = VisibleDevices.ToDictionary(x => x.Id);
         var currentIds = enabledRaw.Select(x => x.Id).ToHashSet();
 
-        // Remove unselected
+        // Remove unselected or disconnected
         for (int i = VisibleDevices.Count - 1; i >= 0; i--)
         {
             if (!currentIds.Contains(VisibleDevices[i].Id))
@@ -356,9 +391,8 @@ public class MainViewModel : INotifyPropertyChanged
         // Add or update
         foreach (var raw in enabledRaw)
         {
-            string displayName = _settings.CustomDisplayNames.TryGetValue(raw.Id, out var custom) && !string.IsNullOrWhiteSpace(custom)
-                ? custom
-                : raw.Name;
+            string custom = _settings.GetCustomName(raw.Id, raw.Name, raw.FullName);
+            string displayName = !string.IsNullOrWhiteSpace(custom) ? custom : raw.Name;
 
             if (existingMap.TryGetValue(raw.Id, out var existing))
             {
