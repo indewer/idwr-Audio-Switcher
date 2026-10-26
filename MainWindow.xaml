@@ -137,31 +137,30 @@
             <DropShadowEffect BlurRadius="22" ShadowDepth="4" Opacity="0.55" Color="#000000"/>
         </Border.Effect>
 
-        <Grid Margin="16,14,16,16">
+        <Grid Margin="16,14,16,12">
             <Grid.RowDefinitions>
                 <!-- Header -->
                 <RowDefinition Height="Auto"/>
                 <!-- Body / Device list or Settings -->
                 <RowDefinition Height="*"/>
+                <!-- Footer -->
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- HEADER (Draggable) -->
-            <Grid Grid.Row="0" Margin="0,0,0,14" MouseLeftButtonDown="Header_MouseDown" Background="Transparent">
+            <Grid Grid.Row="0" Margin="0,0,0,12" MouseLeftButtonDown="Header_MouseDown" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: App Icon & Title -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="26" Height="26" CornerRadius="7" Background="#26283B" Margin="0,0,10,0">
-                        <!-- Sound Wave Icon -->
-                        <Path Fill="#818CF8" Data="M12 3v18M8 8v8M4 11v2M16 6v12M20 9v6" 
-                              Stroke="#818CF8" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                              HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="14" Height="14"/>
-                    </Border>
-                    <TextBlock Text="(idwr) Audio Switcher" Foreground="#F3F4F6" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
-                </StackPanel>
+                <!-- Left: App Icon only (clean & minimal) -->
+                <Border Width="26" Height="26" CornerRadius="7" Background="#26283B" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <!-- Sound Wave Icon -->
+                    <Path Fill="#818CF8" Data="M12 3v18M8 8v8M4 11v2M16 6v12M20 9v6" 
+                          Stroke="#818CF8" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                          HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="14" Height="14"/>
+                </Border>
 
                 <!-- Right: Header Controls (Pin, Settings, Minimize, Close) -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
@@ -325,7 +324,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="(idwr) Audio Switcher" Foreground="#C7D2FE" FontWeight="SemiBold" FontSize="11.5"/>
                                 <Border Grid.Column="1" Background="#312E81" CornerRadius="4" Padding="5,1">
-                                    <TextBlock Text="0.1 b5" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
+                                    <TextBlock Text="0.1 b6" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
                                 </Border>
                             </Grid>
                             <Button Style="{StaticResource LinkButton}" Click="OpenTelegram_Click" ToolTip="Открыть в Telegram">
@@ -346,6 +345,11 @@
                     <!-- Save & Back Button -->
                     <Button Style="{StaticResource PrimaryButton}" Content="Сохранить и применить" Click="SaveSettingsButton_Click"/>
                 </StackPanel>
+            </Grid>
+
+            <!-- FOOTER: Small gray title in bottom-left corner -->
+            <Grid Grid.Row="2" Margin="2,8,0,0">
+                <TextBlock Text="(idwr) Audio Switcher" Foreground="#555B70" FontSize="10" FontWeight="Normal" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </Grid>
 
         </Grid>
