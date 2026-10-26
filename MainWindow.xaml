@@ -325,7 +325,7 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="(idwr) Audio Switcher" Foreground="#C7D2FE" FontWeight="SemiBold" FontSize="11.5"/>
                                 <Border Grid.Column="1" Background="#312E81" CornerRadius="4" Padding="5,1">
-                                    <TextBlock Text="0.1 b4" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
+                                    <TextBlock Text="0.1 b5" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
                                 </Border>
                             </Grid>
                             <Button Style="{StaticResource LinkButton}" Click="OpenTelegram_Click" ToolTip="Открыть в Telegram">

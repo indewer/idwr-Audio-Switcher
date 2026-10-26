@@ -14,6 +14,8 @@ public class AppSettings
     public bool AlwaysOnTop { get; set; } = true;
     public double? WindowLeft { get; set; } = null;
     public double? WindowTop { get; set; } = null;
+    public string? SavedScreenDeviceName { get; set; } = null;
+    public bool? IsPrimaryScreen { get; set; } = null;
     public bool StartWithWindows { get; set; } = false;
     public bool SortByRecent { get; set; } = true;
     public Dictionary<string, long> DeviceLastUsedTicks { get; set; } = new();
