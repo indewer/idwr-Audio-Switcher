@@ -5,6 +5,7 @@ publish/
 publish_standalone/
 publish_release/
 publish_b2/
+publish_b3/
 
 ## Visual Studio & IDE caches
 .vs/

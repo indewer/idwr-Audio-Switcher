@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         _notifyIcon = new Forms.NotifyIcon
         {
             Icon = _appIcon,
-            Text = "(idwr) Audio Switcher 0.2 b2",
+            Text = "(idwr) Audio Switcher 0.2 b3",
             Visible = true
         };
 
@@ -198,19 +198,16 @@ public partial class MainWindow : Window
         _vm.AlwaysOnTop = !_vm.AlwaysOnTop;
     }
 
-    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         _vm.SaveSettingsFromUI(closeSettings: false);
         SaveCurrentPosition();
         Hide();
     }
 
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    private async void CheckUpdatesManual_Click(object sender, RoutedEventArgs e)
     {
-        _vm.SaveSettingsFromUI(closeSettings: false);
-        SaveCurrentPosition();
-        Hide();
-        _notifyIcon.ShowBalloonTip(1500, "(idwr) Audio Switcher", "Виджет свернут в трей. Кликните дважды, чтобы открыть.", Forms.ToolTipIcon.Info);
+        await _vm.CheckUpdatesManuallyAsync();
     }
 
     private void OpenTelegram_Click(object sender, RoutedEventArgs e)

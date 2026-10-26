@@ -211,6 +211,46 @@ public class MainViewModel : INotifyPropertyChanged
         set { _updateButtonText = value; OnPropertyChanged(); }
     }
 
+    private string _checkUpdateTooltip = "Проверить обновления";
+    private bool _isCheckingUpdates;
+
+    public string CheckUpdateTooltip
+    {
+        get => _checkUpdateTooltip;
+        set { _checkUpdateTooltip = value; OnPropertyChanged(); }
+    }
+
+    public async Task CheckUpdatesManuallyAsync()
+    {
+        if (_isCheckingUpdates) return;
+        _isCheckingUpdates = true;
+        CheckUpdateTooltip = "Проверка...";
+
+        try
+        {
+            var res = await UpdateHelper.CheckForUpdateAsync();
+            if (res.IsUpdateAvailable && !string.IsNullOrEmpty(res.DownloadUrl))
+            {
+                _downloadUrl = res.DownloadUrl;
+                NewVersionTag = res.LatestVersionTag;
+                IsUpdateAvailable = true;
+                CheckUpdateTooltip = $"Доступно обновление: {res.LatestVersionTag}!";
+            }
+            else
+            {
+                CheckUpdateTooltip = "У вас установлена последняя версия ✓";
+            }
+        }
+        catch
+        {
+            CheckUpdateTooltip = "Не удалось проверить обновления";
+        }
+        finally
+        {
+            _isCheckingUpdates = false;
+        }
+    }
+
     public MainViewModel()
     {
         _settings = AppSettings.Load();
