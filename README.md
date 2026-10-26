@@ -1,6 +1,6 @@
 # (idwr) Audio Switcher
 
-[![Version](https://img.shields.io/badge/version-0.1%20b7-indigo.svg)](#)
+[![Version](https://img.shields.io/badge/version-0.1%20b8-indigo.svg)](#)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue.svg)](#)
 [![Author](https://img.shields.io/badge/author-@indewer-blueviolet.svg)](https://t.me/indewer)
 
@@ -17,7 +17,8 @@ A sleek, lightweight floating widget designed for Windows 10 & 11 to solve the h
 - ⏱️ **Smart MRU Sorting:** Frequently and recently used outputs dynamically rise to the top of the list.
 - 🎨 **Windows 11 Fluent UI:** Dark glassmorphism card, smooth animations, and matching custom system tray icon.
 - 📌 **Always-on-Top & Portable:** Drag anywhere on screen, pin over windows, or minimize to the system tray.
-- 🔄 **Auto-Save:** All settings, device visibility, and window positions are saved automatically on the fly.
+- 🔄 **Auto-Save & Multi-Monitor:** Window position is accurately remembered across multiple screens and restarts.
+- 🚀 **Auto-Updater:** Periodic background check (every 12 days) with unobtrusive 1-click update badge.
 
 ### Running & Building
 - **Direct Launch:** Run `publish/AudioSwitcherWidget.exe`.
@@ -33,7 +34,7 @@ A sleek, lightweight floating widget designed for Windows 10 & 11 to solve the h
 Стильный, быстрый и компактный плавающий виджет для мгновенного переключения аудиовыходов в Windows 10/11 в один клик.
 
 **Автор:** [@indewer](https://t.me/indewer) (indewer@ya.ru)  
-**Версия:** 0.1 b7  
+**Версия:** 0.1 b8  
 
 ### Возможности
 1. **Выбор только нужных устройств**: Нажмите на шестеренку ⚙️ в заголовке виджета и отметьте галочками только те выходы, которыми вы пользуетесь (например, наушники и колонки). Все остальные (HDMI мониторов, лишние разъемы) скроются.
@@ -42,10 +43,11 @@ A sleek, lightweight floating widget designed for Windows 10 & 11 to solve the h
 4. **Умная сортировка**: Недавно и часто используемые устройства автоматически поднимаются в начало списка.
 5. **Статус «Активно»**: Текущий активный аудиовыход подсвечивается индиго-свечением и маркером «Активно».
 6. **Закрепление поверх окон (📌)**: Кнопка-булавка в шапке включает режим «Поверх всех окон», чтобы виджет всегда был под рукой.
-7. **Перетаскивание**: Зажмите левую кнопку мыши на шапке или фоне виджета и перетащите его в любое удобное место экрана. Виджет запоминает свою позицию.
+7. **Перетаскивание и мультимониторность**: Виджет надежно запоминает экран и координаты даже в многомониторных конфигурациях.
 8. **Сворачивание в трей**: Кнопка «─» или «✕» сворачивает виджет в системный трей (возле часов). Двойной клик по фирменной иконке в трее открывает его снова.
-9. **Автозагрузка**: В настройках можно включить «Запускать при старте Windows».
-10. **Автосохранение**: Любые изменения настроек и позиций сохраняются мгновенно на лету.
+9. **Автообновление**: Ненавязчивая автоматическая проверка обновлений на GitHub (раз в 12 дней) с обновлением в один клик прямо из настроек.
+10. **Автозагрузка**: В настройках можно включить «Запускать при старте Windows».
+11. **Автосохранение**: Любые изменения настроек и позиций сохраняются мгновенно на лету.
 
 ### Запуск
 * Запустите файл `AudioSwitcherWidget\publish\AudioSwitcherWidget.exe` напрямую или через скрипт `Запустить AudioSwitcher.bat`.

@@ -18,6 +18,8 @@ public class AppSettings
     public bool? IsPrimaryScreen { get; set; } = null;
     public bool StartWithWindows { get; set; } = false;
     public bool SortByRecent { get; set; } = true;
+    public bool AutoCheckUpdates { get; set; } = true;
+    public DateTime? LastUpdateCheckUtc { get; set; } = null;
     public Dictionary<string, long> DeviceLastUsedTicks { get; set; } = new();
 
     private static readonly string SettingsFilePath = Path.Combine(

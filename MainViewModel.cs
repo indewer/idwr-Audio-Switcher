@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 
 namespace AudioSwitcherWidget;
@@ -91,7 +92,15 @@ public class MainViewModel : INotifyPropertyChanged
     private bool _alwaysOnTop;
     private bool _startWithWindows;
     private bool _sortByRecent;
+    private bool _autoCheckUpdates;
     private bool _isUpdatingInternally;
+
+    // Update notification state
+    private bool _isUpdateAvailable;
+    private string _newVersionTag = string.Empty;
+    private string _downloadUrl = string.Empty;
+    private bool _isUpdating;
+    private string _updateButtonText = "Обновить";
 
     public ObservableCollection<DeviceCardViewModel> VisibleDevices { get; } = new();
     public ObservableCollection<DeviceSettingItemViewModel> AllDevicesSettings { get; } = new();
@@ -152,12 +161,49 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool AutoCheckUpdates
+    {
+        get => _autoCheckUpdates;
+        set
+        {
+            _autoCheckUpdates = value;
+            _settings.AutoCheckUpdates = value;
+            _settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsUpdateAvailable
+    {
+        get => _isUpdateAvailable;
+        set { _isUpdateAvailable = value; OnPropertyChanged(); }
+    }
+
+    public string NewVersionTag
+    {
+        get => _newVersionTag;
+        set { _newVersionTag = value; OnPropertyChanged(); }
+    }
+
+    public bool IsUpdating
+    {
+        get => _isUpdating;
+        set { _isUpdating = value; OnPropertyChanged(); }
+    }
+
+    public string UpdateButtonText
+    {
+        get => _updateButtonText;
+        set { _updateButtonText = value; OnPropertyChanged(); }
+    }
+
     public MainViewModel()
     {
         _settings = AppSettings.Load();
         _alwaysOnTop = _settings.AlwaysOnTop;
         _startWithWindows = _settings.StartWithWindows;
         _sortByRecent = _settings.SortByRecent;
+        _autoCheckUpdates = _settings.AutoCheckUpdates;
 
         RefreshDevices(firstRun: true);
 
@@ -167,6 +213,46 @@ public class MainViewModel : INotifyPropertyChanged
         };
         _refreshTimer.Tick += (s, e) => RefreshDevices(firstRun: false);
         _refreshTimer.Start();
+
+        if (_autoCheckUpdates)
+        {
+            CheckPeriodicUpdatesAsync();
+        }
+    }
+
+    private async void CheckPeriodicUpdatesAsync()
+    {
+        try
+        {
+            bool shouldCheck = !_settings.LastUpdateCheckUtc.HasValue ||
+                               (DateTime.UtcNow - _settings.LastUpdateCheckUtc.Value).TotalDays >= 12;
+
+            if (shouldCheck)
+            {
+                var res = await UpdateHelper.CheckForUpdateAsync();
+                _settings.LastUpdateCheckUtc = DateTime.UtcNow;
+                _settings.Save();
+
+                if (res.IsUpdateAvailable && !string.IsNullOrEmpty(res.DownloadUrl))
+                {
+                    _downloadUrl = res.DownloadUrl;
+                    NewVersionTag = res.LatestVersionTag;
+                    IsUpdateAvailable = true;
+                }
+            }
+        }
+        catch { }
+    }
+
+    public async Task ApplyUpdateAsync()
+    {
+        if (string.IsNullOrEmpty(_downloadUrl) || IsUpdating) return;
+        IsUpdating = true;
+        UpdateButtonText = "Загрузка...";
+        await UpdateHelper.DownloadAndInstallUpdateAsync(_downloadUrl, status =>
+        {
+            UpdateButtonText = status;
+        });
     }
 
     public void RefreshDevices(bool firstRun = false)

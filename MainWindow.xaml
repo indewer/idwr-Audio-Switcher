@@ -309,6 +309,7 @@
                     <Border Background="#1C1E2B" CornerRadius="8" Padding="10,8" Margin="0,0,0,10" BorderThickness="1" BorderBrush="#2A2E42">
                         <StackPanel>
                             <CheckBox IsChecked="{Binding SortByRecent}" Content="Недавние устройства всегда сверху" Margin="0,0,0,6" ToolTip="Активные и последние используемые аудиовыходы поднимаются в начало списка"/>
+                            <CheckBox IsChecked="{Binding AutoCheckUpdates}" Content="Проверять обновления (раз в 12 дней)" Margin="0,0,0,6" ToolTip="Периодическая тихая проверка новых релизов на GitHub"/>
                             <CheckBox IsChecked="{Binding AlwaysOnTop}" Content="Закрепить поверх всех окон" Margin="0,0,0,6"/>
                             <CheckBox IsChecked="{Binding StartWithWindows}" Content="Запускать при старте Windows"/>
                         </StackPanel>
@@ -322,11 +323,33 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Text="(idwr) Audio Switcher" Foreground="#C7D2FE" FontWeight="SemiBold" FontSize="11.5"/>
-                                <Border Grid.Column="1" Background="#312E81" CornerRadius="4" Padding="5,1">
-                                    <TextBlock Text="0.1 b7" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
-                                </Border>
+                                <TextBlock Text="(idwr) Audio Switcher" Foreground="#C7D2FE" FontWeight="SemiBold" FontSize="11.5" VerticalAlignment="Center"/>
+                                
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="#312E81" CornerRadius="4" Padding="5,1">
+                                        <TextBlock Text="0.1 b8" Foreground="#A5B4FC" FontSize="10" FontWeight="SemiBold"/>
+                                    </Border>
+
+                                    <!-- Unobtrusive Update Badge/Pill -->
+                                    <Button Margin="6,0,0,0" Padding="7,2" Background="#065F46" BorderBrush="#10B981" BorderThickness="1"
+                                            Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVis}}"
+                                            Click="ApplyUpdate_Click" ToolTip="Нажмите для автоматического обновления" Cursor="Hand">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="✨ " FontSize="9" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding UpdateButtonText}" Foreground="#A7F3D0" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
+
+                            <!-- Contacts & GitHub -->
                             <Button Style="{StaticResource LinkButton}" Click="OpenTelegram_Click" ToolTip="Открыть в Telegram">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Telegram: " Foreground="#64748B" FontSize="11"/>
@@ -337,6 +360,12 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Email: " Foreground="#64748B" FontSize="11"/>
                                     <TextBlock Text="indewer@ya.ru" Foreground="#818CF8" FontWeight="Medium" FontSize="11" TextDecorations="Underline"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource LinkButton}" Click="OpenGitHub_Click" ToolTip="Открыть репозиторий на GitHub" Margin="0,3,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="GitHub: " Foreground="#64748B" FontSize="11"/>
+                                    <TextBlock Text="idwr-Audio-Switcher" Foreground="#818CF8" FontWeight="Medium" FontSize="11" TextDecorations="Underline"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         _notifyIcon = new Forms.NotifyIcon
         {
             Icon = _appIcon,
-            Text = "(idwr) Audio Switcher 0.1 b7",
+            Text = "(idwr) Audio Switcher 0.1 b8",
             Visible = true
         };
 
@@ -229,6 +229,20 @@ public partial class MainWindow : Window
             Process.Start(new ProcessStartInfo("mailto:indewer@ya.ru") { UseShellExecute = true });
         }
         catch { }
+    }
+
+    private void OpenGitHub_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/indewer/idwr-Audio-Switcher") { UseShellExecute = true });
+        }
+        catch { }
+    }
+
+    private async void ApplyUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        await _vm.ApplyUpdateAsync();
     }
 
     private void ShowAndActivate()
