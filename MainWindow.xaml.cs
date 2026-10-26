@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         _notifyIcon = new Forms.NotifyIcon
         {
             Icon = _appIcon,
-            Text = "(idwr) Audio Switcher 0.1 b6",
+            Text = "(idwr) Audio Switcher 0.1 b7",
             Visible = true
         };
 
@@ -155,6 +155,15 @@ public partial class MainWindow : Window
             SaveCurrentPosition();
         };
         _saveLocationDebounce.Start();
+    }
+
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            DragMove();
+            SaveCurrentPosition();
+        }
     }
 
     private void Header_MouseDown(object sender, MouseButtonEventArgs e)
